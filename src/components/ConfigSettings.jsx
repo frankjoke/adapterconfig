@@ -25,7 +25,7 @@ import {
   Tab,
 } from "@material-ui/core";
 
-import configtool from "../../assets/config.json";
+//import configtool from "../../assets/config.json";
 //import { config } from "chai";
 //import { isNoSubstitutionTemplateLiteral } from "typescript";
 //import { isNotEmittedStatement } from "typescript";

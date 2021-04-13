@@ -31,9 +31,6 @@
     "@material-ui/core": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "@reduxjs/toolkit": "^1.5.1",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.3",
-    "axios": "^0.21.1",
     "classnames": "^2.3.1",
     "cssnano": "^5.0.1",
     "eslint": "^7.24.0",
@@ -45,7 +42,6 @@
     "parcel": "^2.0.0-beta.2",
     "parcel-plugin-html-externals": "^0.2.0",
     "parcel-plugin-static-files-copy": "^2.6.0",
-    "postcss": "^8.2.10",
     "react": "^17.0.2",
     "react-dnd": "^14.0.2",
     "react-dnd-html5-backend": "^14.0.0",
@@ -54,16 +50,15 @@
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.3",
     "react-redux": "^7.2.3",
-    "redux": "^4.0.5",
-    "typescript": "^4.2.4"
+    "redux": "^4.0.5"
   },
   "browser": "build/index.html",
   "scripts": {
     "devLocal:parcel": "parcel index.html --open --dist-dir serve",
     "buildLocal:Parcel": "parcel build index.html --public-url ./ --dist-dir build",
     "watchLocal:parcel": "parcel watch index.html",
-    "watch:parcel": "parcel src/index.jsx -d serve",
-    "build:parcel": "parcel build src/index.jsx -d build",
+    "watch:parcel": "parcel src/index.jsx --dist-dir serve",
+    "build:parcel": "parcel build src/index.jsx --dist-dir build",
     "lint": "eslint --ext .js,.jsx"
   },
   "bugs": {

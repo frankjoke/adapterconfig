@@ -1,5 +1,5 @@
 import React from "react";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+//import { withStyles, makeStyles } from "@material-ui/core/styles";
 //import GenericApp from "@iobroker/adapter-react/GenericApp";
 //import InputChips from "./InputChips";
 //import ChipInput from "material-ui-chip-input";
@@ -31,11 +31,11 @@ import {
   TableCell,
   TableRow,
 } from "@material-ui/core";
-import { TreeView, TreeItem } from "@material-ui/lab";
-import EditState from "./EditState";
-import { isIterationStatement } from "typescript";
+//import { TreeView, TreeItem } from "@material-ui/lab";
+//import EditState from "./EditState";
+//import { isIterationStatement } from "typescript";
 
-import { useDrag } from "react-dnd"; //import { config } from "chai";
+//import { useDrag } from "react-dnd"; //import { config } from "chai";
 import { lightBlue } from "@material-ui/core/colors";
 //import { isNotEmittedStatement } from "typescript";
 
