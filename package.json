@@ -20,7 +20,6 @@
     "type": "git",
     "url": "git+https://github.com/frankjoke/adapterconfig.git"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.15",
