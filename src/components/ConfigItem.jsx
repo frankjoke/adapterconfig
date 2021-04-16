@@ -39,9 +39,7 @@ import {
   TextareaAutosize,
   InputAdornment,
 } from "@material-ui/core";
-import Autocomplete, {
-  createFilterOptions,
-} from "@material-ui/lab/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@material-ui/lab/Autocomplete";
 //import { config } from "chai";
 //import { createSolutionBuilderWithWatch, isNoSubstitutionTemplateLiteral } from "typescript";
 //import { restore } from "sinon";
@@ -85,6 +83,31 @@ class ConfigItem extends React.Component {
     for (const [type, funlist] of Object.entries(this.events))
       for (const fun of funlist) Iob.removeEventListener(type, fun);
   }
+  getSelect(sel) {
+    if (sel && !Array.isArray(sel)) {
+      //      console.log("select=", sel, this.props.settings.props.ipAddresses);
+      if (typeof sel === "string") {
+        if (sel.startsWith("{")) {
+          let fun = undefined,
+            rsel = null;
+          try {
+            fun = makeFunction(sel, this, "$,props,Iob");
+            rsel = fun(this.state.value, this.props, Iob);
+            //            console.log("select executed get function:", sel, rsel);
+            if (Array.isArray(rsel)) sel = rsel;
+          } catch (e) {
+            console.log("got select function error:", e);
+          }
+        }
+        return sel;
+      } else if (typeof sel === "function") {
+        return sel.bind(this)(this.state.value, this.props, Iob);
+      }
+    } else if (Array.isArray(sel)) return sel;
+    else if (sel) return [sel];
+    return [];
+  }
+
   createState(props) {
     const {
       field,
@@ -105,10 +128,7 @@ class ConfigItem extends React.Component {
     if (changeItems) {
       const commands = Array.isArray(changeItems) ? changeItems : [changeItems];
       for (const cmd of commands) {
-        const fun =
-          typeof cmd === "string"
-            ? makeFunction(cmd, this, "$,items,Iob")
-            : cmd;
+        const fun = typeof cmd === "string" ? makeFunction(cmd, this, "$,items,Iob") : cmd;
         let res = undefined;
         try {
           res = fun(props.value, items, Iob);
@@ -126,10 +146,7 @@ class ConfigItem extends React.Component {
         if (typeof cmd === "string") fun = makeFunction(cmd, that, "e,Iob");
         else if (typeof cmd === "function") fun = cmd;
         if (!fun) {
-          Iob.logSnackbar(
-            "warning",
-            t("on {0} is not a string nor a function {1}", event, cmd)
-          );
+          Iob.logSnackbar("warning", t("on {0} is not a string nor a function {1}", event, cmd));
           continue;
         }
         const sfun = (ev) => {
@@ -148,15 +165,10 @@ class ConfigItem extends React.Component {
 
     function convertFun(item, name, that, dres) {
       let fun;
-      if (typeof item === "string")
-        fun = makeFunction(cmd, that, "e,that,Iob");
+      if (typeof item === "string") fun = makeFunction(cmd, that, "e,that,Iob");
       else if (typeof item === "function") fun = item;
       if (!fun) {
-        Iob.logSnackbar(
-          "warning;{0} is not a string nor a function '{1}'",
-          name,
-          item
-        );
+        Iob.logSnackbar("warning;{0} is not a string nor a function '{1}'", name, item);
         return () => dres;
       }
       return (ev) => {
@@ -173,10 +185,8 @@ class ConfigItem extends React.Component {
     prepareOnChange(onStateChange, "stateChange", this);
     prepareOnChange(onObjectChange, "objectChange", this);
 
-    if (canDropHere)
-      canDropHere = convertFun(canDropHere, "canDropHere", this, true);
-    if (dropAction)
-      dropAction = convertFun(dropAction, "dropAction", this, true);
+    if (canDropHere) canDropHere = convertFun(canDropHere, "canDropHere", this, true);
+    if (dropAction) dropAction = convertFun(dropAction, "dropAction", this, true);
 
     const state = { value: props.value };
     if (onClick) {
@@ -225,51 +235,22 @@ class ConfigItem extends React.Component {
       if (res !== null && res !== undefined && res !== state.value) {
         state.value = res;
         //        console.log("convertOld:", this.props.attr, props.value, res);
-        if (props.field !== "$undefined")
-          this.props.onUpdateValue(this.props.attr, res);
+        if (props.field !== "$undefined") Iob.updateInativeValue(this.props.attr, res);
       }
       //          Iob.setStore.updateInativeValue({ attr: this.props.attr, value:res });
     }
 
-    let sel = iselect;
-    if (sel && !Array.isArray(sel)) {
-      //      console.log("select=", sel, this.props.settings.props.ipAddresses);
-      if (typeof sel === "string") {
-        if (sel.startsWith("{")) {
-          let fun = undefined,
-            rsel = null;
-          try {
-            fun = makeFunction(sel, this, "$,props,Iob");
-            rsel = fun(state.value, this.props, Iob);
-            //            console.log("select executed get function:", sel, rsel);
-            if (Array.isArray(rsel)) sel = rsel;
-          } catch (e) {
-            console.log("got select function error:", e);
-          }
-        }
-        state.iselect = sel;
-      } else if (typeof sel === "function") {
-        state.iselect = sel.bind(this)(state.value, this.props, Iob);
-      }
-    } else if (Array.isArray(sel)) state.iselect = sel;
-    else if (sel) state.iselect = [sel];
-
     if (ieval) {
       state.ieval = (Array.isArray(ieval) ? ieval : [ieval]).map((ei) =>
-        ei && typeof ei === "string"
-          ? makeFunction(ei, this, "$,items,Iob")
-          : ei
+        ei && typeof ei === "string" ? makeFunction(ei, this, "$,items,Iob") : ei
       );
     }
 
     if (rules) {
-      const values =
-        (Array.isArray(rules) && rules) || (rules && [rules]) || null;
+      const values = (Array.isArray(rules) && rules) || (rules && [rules]) || null;
       if (values)
         state.rules = values.map((i) =>
-          typeof i === "function"
-            ? i.bind(that)
-            : makeFunction(i, that, "$,t")
+          typeof i === "function" ? i.bind(that) : makeFunction(i, that, "$,t")
         );
     }
 
@@ -284,6 +265,8 @@ class ConfigItem extends React.Component {
       dropAction,
       canDropHere,
       isOverProps,
+      iselect,
+      astates: this.props.astates,
       ...state,
     };
   }
@@ -291,9 +274,9 @@ class ConfigItem extends React.Component {
   static getDerivedStateFromProps(props, state) {
     let newState = null;
     //    console.log("derivedState:", state.opvalue, props.value, state.value);
-    if (props.value != state.opvalue) {
+    if (props.value != state.opvalue || props.astates != state.astates) {
       //      console.log("Prop value changed!", state.opvalue, props.value, state.value);
-      newState = { value: props.value, opvalue: props.value };
+      newState = { value: props.value, opvalue: props.value, astates: props.astates };
     }
     return newState;
   }
@@ -346,21 +329,16 @@ class ConfigItem extends React.Component {
     if (!table) return true;
     const v = ("" + val).trim();
     const found = table.filter((i) => ("" + i[field]).trim() == v);
-    return (
-      found.length <= 1 ||
-      this.t("This item can only be once per table in this field!")
-    );
+    return found.length <= 1 || this.t("This item can only be once per table in this field!");
   }
 
   doChangeValue(value, e) {
     if (this.check(value)) value = this.change(value);
-    //    console.log(value, this.props.attr, `'${this.errorString}'`);
+//    console.log(value, this.props.attr, `'${this.errorString}'`, e);
     this.setState({ value });
     //    debugger;
-    if (typeof this.state.item.onClick === "function")
-      this.state.item.onClick(e, value, Iob);
-    if (this.props.field !== "$undefined" && this.props.onUpdateValue)
-      this.props.onUpdateValue(this.props.attr, value);
+    if (typeof this.state.item.onClick === "function") this.state.item.onClick(e, value, Iob);
+    if (this.props.field !== "$undefined") Iob.updateInativeValue(this.props.attr, value);
   }
 
   $text(item) {
@@ -368,16 +346,11 @@ class ConfigItem extends React.Component {
     const { value } = this.state;
     if (Array.isArray(text)) text = text.join("");
     if (Array.isArray(html)) html = html.join("<br>");
-    if (!text && !html && !label && value !== undefined && value !== null)
-      text = value.toString();
+    if (!text && !html && !label && value !== undefined && value !== null) text = value.toString();
     let res = [];
     if (label)
       res.push(
-        <Typography
-          key={this.getKey("l")}
-          {...items}
-          variant={items.lvariant || "subtitle1"}
-        >
+        <Typography key={this.getKey("l")} {...items} variant={items.lvariant || "subtitle1"}>
           {label}
         </Typography>
       );
@@ -387,8 +360,7 @@ class ConfigItem extends React.Component {
           {text}
         </Typography>
       );
-    if (html)
-      res.push(<HtmlComponent key={this.getKey("h")} {...items} html={html} />);
+    if (html) res.push(<HtmlComponent key={this.getKey("h")} {...items} html={html} />);
     return res;
   }
 
@@ -397,22 +369,16 @@ class ConfigItem extends React.Component {
     const { value } = this.state;
     //    console.log("html:", split);
     if (Array.isArray(text)) text = text.join("");
-    if (!text && !label && value !== undefined && value !== null)
-      text = value.toString();
+    if (!text && !label && value !== undefined && value !== null) text = value.toString();
     const res = [];
     if (label)
       res.push(
-        <Typography
-          key={this.getKey("l")}
-          {...items}
-          variant={items.lvariant || "subtitle1"}
-        >
+        <Typography key={this.getKey("l")} {...items} variant={items.lvariant || "subtitle1"}>
           {label}
           <br />
         </Typography>
       );
-    if (text)
-      res.push(<HtmlComponent key={this.getKey("t")} {...items} html={text} />);
+    if (text) res.push(<HtmlComponent key={this.getKey("t")} {...items} html={text} />);
     return res;
   }
 
@@ -430,10 +396,7 @@ class ConfigItem extends React.Component {
     const { value, errorString } = this.state;
     const key = this.getKey();
     const sw = (
-      <FormControl
-        required
-        error={!!this.errorString} /* className={classes.formControl} */
-      >
+      <FormControl required error={!!this.errorString} /* className={classes.formControl} */>
         {label && (
           <InputLabel shrink required={required} htmlFor={key}>
             {label}
@@ -444,11 +407,7 @@ class ConfigItem extends React.Component {
           rowsMax={rowsMax}
           rowsMin={rowsMin}
           width="100%"
-          value={
-            typeof value === "string"
-              ? value
-              : (value && value.toString()) || ""
-          }
+          value={typeof value === "string" ? value : (value && value.toString()) || ""}
           onChange={(e) => this.doChangeValue(e.target.value, e)}
           {...rest}
         />
@@ -540,7 +499,8 @@ class ConfigItem extends React.Component {
       ...items
     } = item;
     const key = this.getKey();
-    const { iselect = [{ value: "", label: "...loading" }] } = this.state;
+    let { iselect = [{ value: "", label: "...loading" }] } = this.state;
+    iselect = this.getSelect(iselect);
     // const oselect = {};
     // iselect.map((i) => (oselect[i.value] = i.label));
     const value = this.state.value || "";
@@ -561,6 +521,7 @@ class ConfigItem extends React.Component {
         size={size}
         color={color}
         disabled={disabled}
+        defaultValue={defaultValue}
         disableClearable
         //          getOptionSelected={(o, v) => o.value == v}
         onChange={(e) =>
@@ -575,7 +536,7 @@ class ConfigItem extends React.Component {
  */ //          renderInput={(params) => <TextField {...params} label={label} size="small" />}
       />
     );
-    return AddIcon(prependIcon, AddTooltip(tooltip, sw));
+    return AddIcon(prependIcon, AddTooltip(tooltip && { title: tooltip, placement: "top" }, sw));
   }
   $chips(item) {
     let {
@@ -596,6 +557,7 @@ class ConfigItem extends React.Component {
     } = item;
     const key = this.getKey();
     let { value, iselect = [], dragZone, dropZone, itype, field } = this.state;
+    iselect = this.getSelect(iselect);
     if (!Array.isArray(value)) {
       if (typeof value === "string") {
         value = Iob.stringToArrayComma(value);
@@ -635,16 +597,16 @@ class ConfigItem extends React.Component {
   }
 
   $table(item) {
-    const { value, settings, attr, onUpdateValue } = this.props;
+    const { value, settings, attr } = this.props;
     return (
       <ConfigTable
         index={this.getKey()}
         item={item}
         inative={value}
         settings={settings}
+        astates={this.state.astates}
         attr={attr}
         rows={value}
-        onUpdateValue={onUpdateValue}
         columns={item.items}
         {...item}
       />
@@ -652,28 +614,26 @@ class ConfigItem extends React.Component {
   }
 
   $object(item) {
-    const { value, settings, attr, onUpdateValue } = this.props;
+    const { value, settings, attr} = this.props;
     return (
       <ConfigList
         index={this.getKey()}
         page={item}
         inative={value || {}}
         attr={attr}
-        onUpdateValue={onUpdateValue}
         {...item}
       />
     );
   }
 
   $grid(item) {
-    const { inative, settings, attr, onUpdateValue } = this.props;
+    const { inative, settings, attr } = this.props;
     return (
       <ConfigList
         index={this.getKey()}
         page={item}
         inative={inative}
         attr={attr}
-        onUpdateValue={onUpdateValue}
         {...item}
       />
     );
@@ -682,12 +642,7 @@ class ConfigItem extends React.Component {
   $icon(item) {
     //    this.change = (value) => !this.props.value;
     //    const { tooltip, label, ...rest } = item;
-    const {
-      size = "medium",
-      color = "primary",
-      key = this.getKey(),
-      ...items
-    } = item;
+    const { size = "medium", color = "primary", key = this.getKey(), ...items } = item;
     return <IButton key={key} size={size} color={color} {...items} />;
   }
 
@@ -709,15 +664,8 @@ class ConfigItem extends React.Component {
   $button(item) {
     //    this.change = (value) => !this.props.value;
     //    const { tooltip, label, ...rest } = item;
-    const {
-      size = "small",
-      color = "primary",
-      key = this.getKey(),
-      ...items
-    } = item;
-    return (
-      <TButton key={key} keyId={key} size={size} color={color} {...items} />
-    );
+    const { size = "small", color = "primary", key = this.getKey(), ...items } = item;
+    return <TButton key={key} keyId={key} size={size} color={color} {...items} />;
   }
 
   $password(item) {
@@ -749,14 +697,13 @@ class ConfigItem extends React.Component {
   }
 
   $stateBrowser(item) {
-    const { inative, settings, attr, onUpdateValue } = this.props;
+    const { inative, settings, attr } = this.props;
     return (
       <StateBrowser
         item={this.state.item}
         index={this.getKey()}
         inative={inative}
         attr={attr}
-        onUpdateValue={onUpdateValue}
       />
     );
   }
@@ -774,14 +721,10 @@ class ConfigItem extends React.Component {
       }
       // console.log("number", value, val, item);
       if (val === NaN || val.toString() != value)
-        return this.setErr(
-          t(fixed ? "Not an integer: {0}" : "Not a number: {0}", `'${value}'`)
-        );
+        return this.setErr(t(fixed ? "Not an integer: {0}" : "Not a number: {0}", `'${value}'`));
       else if (!zero || val !== 0) {
-        if (val < min)
-          return this.setErr(t("value must not be smaller than {0}!", min));
-        else if (val > max)
-          return this.setErr(t("value must not be bigger than {0}!", max));
+        if (val < min) return this.setErr(t("value must not be smaller than {0}!", min));
+        else if (val > max) return this.setErr(t("value must not be bigger than {0}!", max));
         else if (fixed && parseFloat(value) != val)
           return this.setErr(t("number need to be an integer!"));
       }
@@ -805,19 +748,10 @@ class ConfigItem extends React.Component {
   render() {
     //    if (!itemR) return itemR = this.state.item;
     //    console.log(this.props.index);
-    const {
-      ieval,
-      itype,
-      item,
-      canDropHere,
-      dropAction,
-      dropZone,
-      isOverProps,
-    } = this.state;
+    const { ieval, itype, item, canDropHere, dropAction, dropZone, isOverProps } = this.state;
     const nitem = Object.assign({}, item);
     const { disabled } = nitem;
-    if (typeof disabled === "function")
-      nitem.disabled = disabled(this.props, Iob);
+    if (typeof disabled === "function") nitem.disabled = disabled(this.props, Iob);
     else if (typeof disabled === "string")
       try {
         const fun = Iob.makeFunction(disabled, this, "props,Iob");
@@ -837,10 +771,10 @@ class ConfigItem extends React.Component {
         }
 
     let sw =
-      isPartOf(
+/*       isPartOf(
         itype,
         "$rbutton|$objectBrowser|$grid|$stateBrowser|$object|$state|$text|$html|$number|$string|$password|$switch|$button|$checkbox|$select|$chips|$table|$textarea|$icon|$log"
-      ) && typeof this[itype] === "function" ? (
+      ) && */ typeof this[itype] === "function" ? (
         this[itype](nitem)
       ) : (
         <span>{this.props.index + ":" + JSON.stringify(nitem, null, 2)}</span>
@@ -851,9 +785,7 @@ class ConfigItem extends React.Component {
         dropZone={dropZone}
         canDropHere={(e) => {
           //          console.log("canDrop", dropZone, e);
-          const test = canDropHere
-            ? canDropHere(e, this, Iob)
-            : this.testRules(e.value);
+          const test = canDropHere ? canDropHere(e, this, Iob) : this.testRules(e.value);
           //            console.log(dropZone, e.value, test);
           return test === true;
         }}
@@ -863,11 +795,7 @@ class ConfigItem extends React.Component {
           const test = this.testRules(e.value);
           test === true
             ? this.doChangeValue(e.value, e)
-            : Iob.logSnackbar(
-                "warning;dropped Value '{0}' invalid because of {1}",
-                e.value,
-                test
-              );
+            : Iob.logSnackbar("warning;dropped Value '{0}' invalid because of {1}", e.value, test);
         }}
         isOverProps={isOverProps}
       >

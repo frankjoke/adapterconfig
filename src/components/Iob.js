@@ -823,8 +823,9 @@ class Iob {
     }
   }
 
-  static updateInativeValue(inative, attr, value) {
-    const native = JSON.parse(JSON.stringify(inative));
+  static updateInativeValue(attr, value) {
+    const native = JSON.parse(JSON.stringify(Iob.getStore.inative));
+//    console.log("updateInativeValue", native, attr, value);
     if (Iob.updateObjectValue(native, attr, value)) Iob.setStore.updateInativeValue(native);
     return native;
   }
@@ -922,87 +923,96 @@ class Iob {
     //    Iob.logSnackbar("Info;!getWebServerName {0}", serverName);
     setStore.setServerName({ serverName, protocol, hostname, port });
     //    console.log(Iob.getStore.myLocation);
-    return Promise.all([
-      Promise.resolve(() => Iob.changeLanguage("de"))
-        .catch((e) => console.log("Error in changeNanguage:", e))
-        .then(() => {
-          //        this.forceUpdate();
-          socket.getObjects((objects) => Iob.setStore.setAdapterObjects(objects));
-        })
-        .then(() => Iob.setInstanceConfig(iConfig)),
-
-      fetch("config.js", {
-        headers: {
-          "Content-Type": "application/javascript",
-          Accept: "application/javascript",
-        },
-      })
-        .then((r) => r.text())
-        .then((r) => {
-          const m = r.match(/^\s*export\s+default\s+/);
-          if (m) r = r.slice(m[0].length);
-          let fun = eval(r);
-          //          console.log("got config from config.js", fun);
-          return fun;
-        })
-        .then(
-          (r) => r,
-          (e) => {
-            console.log("Error on config.js:", e);
-            return fetch("config.json", {
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-            })
-              .then((r) => {
-                console.log("try to get config fron config.json");
-                return r.json();
-              })
-              .catch((e) => {
-                console.log("could not load config.json", e);
-                return config();
-              });
+    //    const confDir = `${protocol}//${hostname}:${port}/adapter/${Iob.getStore.adapterName}/`;
+    const confDir = `/adapter/${Iob.getStore.adapterName}/`;
+    /*     console.log("confDir:", confDir);
+    function loadFile(url) {
+      return new Promise((yes, no) => {
+        var to = setTimeout((_) => no("timeout"), 1000);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+          console.log(this);
+          if (this.readyState == 4 && this.status == 200) {
+            clearTimeout(to);
+            yes(this.responseText);
           }
-        )
-        .then((r) => {
-          setStore.setConfigPage(r);
-          const translation = r.translation;
-          if (typeof translation === "object") Iob.mergeCombinedTranslation(translation);
-        })
-        .catch((e) => Iob.logSnackbar("error;config.json not loaded {0}", e)),
-    ])
+        };
+        xhttp.open("GET", url, true);
+        xhttp.send();
+      });
+    }
+ */
+
+    return Promise.resolve(() => Iob.changeLanguage("de"))
+      .catch((e) => console.log("Error in changeNanguage:", e))
+      .then(() => {
+        //        this.forceUpdate();
+        socket.getObjects((objects) => Iob.setStore.setAdapterObjects(objects));
+      })
+      .then(() => Iob.setInstanceConfig(iConfig))
+      .then((_) =>
+        //loadFile(confDir + "config.js")
+        fetch(confDir + "config.js")
+          .then((r) => r.text())
+          .then((r) => {
+            const m = r.match(/^\s*export\s+default\s+/);
+            if (m) r = r.slice(m[0].length);
+            let fun = eval(r);
+            //          console.log("got config from config.js", fun);
+            return fun;
+          })
+          .then(
+            (r) => r,
+            (e) => {
+              console.log("Error on config.js:", e);
+              return fetch(confDir + "config.json")
+                .then((r) => r.json())
+                .catch((e) => {
+                  console.log("could not load config.json", e);
+                  return config();
+                });
+            }
+          )
+          .then((r) => {
+            setStore.setConfigPage(r);
+            const translation = r.translation;
+            if (typeof translation === "object") Iob.mergeCombinedTranslation(translation);
+          })
+          .catch((e) => Iob.logSnackbar("error;config.json not loaded {0}", e))
+      )
       .then(() =>
         Iob.getIpAddresses()
           .then((r) => setStore.setIpAddresses(r))
           .catch((e) => Iob.logSnackbar("error;ipAddress not loaded {0}", e))
       )
       .then(() => {
+        socket.subscribeState(adapterInstance + ".*", (id, state) => {
+          const obj = { id, state };
+          Iob.storeHandler("updateAdapterStates", obj, 50);
+          Iob.emitEvent("stateChange", obj);
+        });
+
         socket.subscribeObject(adapterInstance + "*", (id, newObj, oldObj) => {
           const obj = { id, newObj, oldObj };
           Iob.emitEvent("objectChange", obj);
           if (obj.id == instanceId) Iob.setInstanceConfig(obj.newObj);
-          Iob.storeHandler("updateAdapterObjects", obj, 30);
+          Iob.storeHandler("updateAdapterObjects", obj, 50);
         });
 
-        socket.subscribeObject("system.adapter." + adapterInstance + "*", (id, newObj, oldObj) => {
+        socket.subscribeObject("system.adapter." + adapterInstance + "*.", (id, newObj, oldObj) => {
           const obj = { id, newObj, oldObj };
           Iob.emitEvent("objectChange", obj);
           if (obj.id == instanceId) Iob.setInstanceConfig(obj.newObj);
-          Iob.storeHandler("updateAdapterObjects", obj, 30);
+          Iob.storeHandler("updateAdapterObjects", obj, 50);
         });
 
-        socket.subscribeState(adapterInstance + "*", (id, state) => {
+        /*
+         socket.subscribeState("system.adapter.*", (id, state) => {
           const obj = { id, state };
           Iob.storeHandler("updateAdapterStates", obj, 30);
           Iob.emitEvent("stateChange", obj);
         });
-
-        socket.subscribeState(/* instanceId + "*" */ "system.adapter.*", (id, state) => {
-          const obj = { id, state };
-          Iob.storeHandler("updateAdapterStates", obj, 30);
-          Iob.emitEvent("stateChange", obj);
-        });
+ */
       });
   }
 

@@ -114,6 +114,7 @@ const ioBroker = createSlice({
       const { adapterInstance, adapterObjects, adapterStates } = state;
       const states = Object.assign({}, adapterStates);
       for (const { id, state } of action.payload) {
+//        console.log("UpdateAStates", id, state);
         if (!state) delete states[id];
         else {
           state._id = id;

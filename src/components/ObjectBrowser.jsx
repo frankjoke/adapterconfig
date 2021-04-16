@@ -266,7 +266,7 @@ class ObjectBrowser extends React.Component {
         expanded: nexpand,
         ...ObjectBrowser._updateFilter(value, that.state),
       };
-      console.log(nst);
+//      console.log(nst);
       that.setState(nst);
     }
     //    let longName = row.stateName || "";

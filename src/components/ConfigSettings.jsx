@@ -10,6 +10,7 @@ import {
   TButton,
   ScrollTop,
   UButton,
+  ErrorBoundary
 } from "./UiComponents";
 //import ChipInput from "material-ui-chip-input";
 import { Iob, t, logSnackbar } from "./Iob";
@@ -24,7 +25,6 @@ import {
   Tabs,
   Tab,
 } from "@material-ui/core";
-
 //import configtool from "../../assets/config.json";
 //import { config } from "chai";
 //import { isNoSubstitutionTemplateLiteral } from "typescript";
@@ -118,7 +118,7 @@ class ConfigSettings extends React.Component {
       margin: "0px 4px",
     };
     return (
-      <>
+      <ErrorBoundary name="ConfigSettingsToolbarAdapter">
         <img
           src={Iob.getHome() + configPage.iconName || instanceConfig.common.icon}
           width="48px"
@@ -163,7 +163,7 @@ class ConfigSettings extends React.Component {
           icon={"replay"}
           size="large"
         />
-      </>
+      </ErrorBoundary>
     );
   }
 
@@ -177,7 +177,7 @@ class ConfigSettings extends React.Component {
       classes,
     } = this.props;
     return (
-      <React.Fragment>
+      <ErrorBoundary name="ConfigSettingsSave">
         <TButton
           tooltip={t("backupConfig")}
           icon="save_alt"
@@ -261,10 +261,11 @@ class ConfigSettings extends React.Component {
           narrow={narrowWidth}
           label={t("ra_cancel")}
         />
-      </React.Fragment>
+      </ErrorBoundary>
     );
   }
   render() {
+    //    console.log("Render CnfigSettings", this.props.adapterStates);
     const { tab, page, config } = this.state;
     //    console.log(tab, page);
     if (!page || !page.items) return null;
@@ -273,7 +274,7 @@ class ConfigSettings extends React.Component {
     const pi = [];
     return (
       //      <div className={this.props.classes.tab}>
-      <React.Fragment>
+      <ErrorBoundary name="ConfigSettings">
         <AppBar
           position="sticky"
           style={{ position: "fixed !important", zIndex: "2000" }}
@@ -339,15 +340,13 @@ class ConfigSettings extends React.Component {
         ) : (
           <ConfigList
             page={page}
+            astates = {this.props.adapterStates}
             inative={inative}
             index={tab.toString()}
             attr={""}
-            onUpdateValue={(attr, value) =>
-              Iob.updateInativeValue(inative, attr, value)
-            }
           />
         )}
-      </React.Fragment>
+      </ErrorBoundary>
     );
   }
 }

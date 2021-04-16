@@ -3,7 +3,7 @@ import React from "react";
 //import GenericApp from "@iobroker/adapter-react/GenericApp";
 //import InputChips from "./InputChips";
 //import ChipInput from "material-ui-chip-input";
-import { AddTooltip, AddIcon, IButton, RButton } from "./UiComponents";
+import { AddTooltip, AddIcon, IButton, RButton, HtmlComponent } from "./UiComponents";
 import { Iob, connect, t } from "./Iob";
 import {
   Typography,
@@ -90,9 +90,7 @@ class EditState extends React.PureComponent {
     const { role, type, write, unit, states } = object || {};
     const { val, ack, ts, q, from } = istate || {};
     const sw =
-      istate && istate.val !== null && istate.val !== undefined
-        ? istate.val.toString()
-        : "";
+      istate && istate.val !== null && istate.val !== undefined ? istate.val.toString() : "";
     const usw = Iob.nbsp(sw + (unit ? " " + unit : ""));
     const {
       tooltip,
@@ -117,9 +115,9 @@ class EditState extends React.PureComponent {
       );
     }
     //    style.width = "100%";
-    const title = `val=${
-      val != null && val !== undefined && val.toString()
-    }\nts=${Iob.timeDiffS(ts)}\nack=${ack}, q=${q}\nfrom=${from}`;
+    const title = `val=${val != null && val !== undefined && val.toString()}\nts=${Iob.timeDiffS(
+      ts
+    )}\nack=${ack}, q=${q}\nfrom=${from}`;
     //    nprops.style = style;
     if (!tooltip) {
       rest.title = title;
@@ -153,6 +151,14 @@ class EditState extends React.PureComponent {
             />
           );
         break;
+      case "object":
+      case "array":
+        sr = (<span style={{fontSize: "0.75em"}}>{Iob.stringify(val, 2, " ")}</span>);
+        /*         (
+          <HtmlComponent component="pre" html={Iob.syntaxHighlight(Iob.stringify(val, 2, " "))} />
+        );
+        */
+        break;
       case "string":
       case "number":
         //        if (write) {
@@ -168,10 +174,7 @@ class EditState extends React.PureComponent {
           //          console.log(nst, nsl, l);
           if (write) {
             sr = (
-              <Select
-                value={val}
-                onChange={(e) => this.onChangeValue(e.target.value, e)}
-              >
+              <Select value={val} onChange={(e) => this.onChangeValue(e.target.value, e)}>
                 {nst.map((i, index) => (
                   <MenuItem key={index} value={i[0]}>
                     {i[1]}
@@ -190,10 +193,7 @@ class EditState extends React.PureComponent {
                 if (e.key == "Escape") {
                   this.setState({ value: val });
                 } else if (e.key == "Enter") {
-                  this.onChangeValue(
-                    type === "number" ? Number(value) : value,
-                    e
-                  );
+                  this.onChangeValue(type === "number" ? Number(value) : value, e);
                 }
               }}
               endAdornment={
@@ -203,10 +203,7 @@ class EditState extends React.PureComponent {
                     <IButton
                       icon="done"
                       onClick={(e) =>
-                        this.onChangeValue(
-                          type === "number" ? Number(value) : value,
-                          e
-                        )
+                        this.onChangeValue(type === "number" ? Number(value) : value, e)
                       }
                     />
                   </InputAdornment>
@@ -239,11 +236,6 @@ class EditState extends React.PureComponent {
 }
 
 export default connect((state) => {
-  const {
-    adapterStatus,
-    adapterStates,
-    adapterObjects,
-    adapterInstance,
-  } = state;
+  const { adapterStatus, adapterStates, adapterObjects, adapterInstance } = state;
   return { adapterStatus, adapterStates, adapterObjects, adapterInstance };
 })(EditState);

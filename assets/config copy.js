@@ -1,11 +1,10 @@
-function config() {
-  /* jshint strict: false */
+export default function config() {
   // config file to include:
   // iconName string for the adapter-icon
   // configTool [] for the array of pages/Tabs
   // translations object with translation keys/languages of text to be translated from configTool
   return {
-    iconName: "acceptdata.png",
+    iconName: "broadlink.png",
     encryptedFields: ["password"],
     configTool_test: [
       {
@@ -30,264 +29,6 @@ function config() {
         tooltip: "Basic adapter config",
         label: "config",
         spacing: 1,
-        items: [
-          {
-            label: "Port",
-            itype: "$number",
-            min: 1000,
-            max: 65000,
-            defaultValue: 3000,
-            placeholder: "Enter port address on to listen on, 3000=example",
-            hint: "Port to listen on >=1000 & <=65000",
-            field: "port",
-            fullWidth: true,
-            prependIcon: "exit_to_app",
-            cols: 3,
-            sm: 4,
-          },
-          {
-            label: "For Method field:",
-            itype: "$html",
-            text: [
-              "!<code>GET</code> | <code>POST</code> ",
-              "is supported.",
-              "!<br>",
-              "By entering the below URL in your browser (changing iobroker-server to your server name or ip) you can test the 'Test' entry:",
-              "!<br><a target='_blank' rel='noopener noreferrer' href='http://MyHost:MyPort/Test?what=ok&length_$m=12&temp_$%C2%B0F=13&speed_$mp/h=88'>http://MyHost:MyPort/Test?what=ok&length_$m=12&temp_$%C2%B0F=13&speed_$mp/h=88</a>",
-            ],
-            style: {
-              width: "98%",
-            },
-            changeItems: [
-              "{items.text = items.text.map(i => i.replace(/MyHost/g,Iob.getStore.location.hostname))}",
-              "{items.text = items.text.map(i => i.replace(/MyPort/g,Iob.getStore.inative.port))}",
-            ],
-            cols: 6,
-            sm: 8,
-          },
-          {
-            label: "For Path field:",
-            itype: "$html",
-            text: [
-              "The external device can connect to the adapter's server using following example:",
-              "!<br>`http://MyHost:MyPort/&nbsp;<code>path</code>&nbsp;?data=...`",
-            ],
-            changeItems:
-              "{items.text = items.text.map(i => i.replace(/MyPort/g,Iob.getStore.inative.port))}",
-            style: {
-              width: "98%",
-            },
-            cols: 3,
-            sm: 4,
-          },
-          {
-            label: "For Convert field:",
-            itype: "$html",
-            text: [
-              "Conversion receives data as variable $ and can convert it to some new format which will then be stored in state(s) named with path. ",
-              "!<br>",
-              "Example: ",
-              "!<code>{ tempC: FtoC($.tempf, 1) }</code>",
-              " where 'FtoC' is an internal conversion for Farenheit to Celsius. Other functions are",
-              "!<br><code>toNum(str, digits_after_comma), CtoF(..) and ItoMM(...)</code>",
-              "The field names can end with '_' and type/unit information. The text after the '_' will be the type like with '_date',",
-              "or if type should be number with specific unit you can name it '_$km/h'.",
-              "There are some predefined types available as well which can be named directly (without $):",
-              "!<br><code>'Hum', 'Kmh', 'Deg', 'Date', 'Hpa', 'Mm', 'Wm2', 'Txt', 'C', 'N'</code>",
-              "where N is just a number Value, the many of the other set also roles.",
-            ],
-            style: {
-              width: "98%",
-            },
-            cols: 9,
-            sm: 8,
-          },
-          {
-            label: "Path Table",
-            itype: "$table",
-            field: "pathtable",
-            "disable-sort": true,
-            cols: 12,
-            items: [
-              {
-                headerName: "Name",
-                itype: "$string",
-                field: "name",
-                align: "left",
-                rules: ["uniqueTableRule", "onlyWords"],
-                sortable: true,
-                defaultValue: "newPath",
-                width: "10%",
-              },
-              {
-                headerName: "Method",
-                itype: "$select",
-                tooltip: "please select methot for path (GET,PUT or POST)",
-                //                iselect: "|GET|PUT|POST",
-                iselect: ($, props, Iob) => {
-                  const sel = Iob.getState(".info.plugins.$methods");
-                  let res = (sel && sel.val) || [{label:"none", value:""}];
-                  return res;
-                  //                  return sel && sel.val || "GET=GET";
-                },
-                field: "method",
-                align: "center",
-                defaultValue: "GET",
-                sortable: false,
-                width: "7%",
-              },
-              {
-                headerName: "Path",
-                itype: "$textarea",
-                field: "path",
-                align: "left",
-                rowsMin: "1",
-                //                rules: ["onlyWords"],
-                //                sortable: true,
-                //                defaultValue: "newPath",
-                width: "15%",
-              },
-              {
-                headerName: "Convert",
-                field: "convert",
-                itype: "$textarea",
-                rowsMin: "1",
-                align: "left",
-                defaultValue: "$",
-                placeholder: "Please enter the formula here, '$' is the simplest!",
-//                sortable: true,
-                width: "30%",
-              },
-              {
-                headerName: "Enabled",
-                itype: "$checkbox",
-                field: "enabled",
-                sortable: false,
-                align: "center",
-                width: "5%",
-              },
-            ],
-          },
-          {
-            itype: "$log",
-            pageSize: 10,
-            cols: 12,
-          },
-
-        ],
-      },
-      {
-        label: "Scenes",
-        icon: "playlist_add",
-        tooltip: "Create and manage scenes or special actions",
-        spacing: 1,
-        items: [
-          {
-            itype: "$stateBrowser",
-            pageSize: 25,
-            dragZone: "adapterState",
-            cols: 6,
-          },
-          {
-            itype: "$grid",
-            spacing: 1,
-            cols: 6,
-            items: [
-              {
-                label: "Scene setup",
-                itype: "$table",
-                field: "scenes",
-                "dyisable-sort": true,
-                cols: 12,
-                items: [
-                  {
-                    headerName: "Name",
-                    itype: "$string",
-                    tooltip: "name of combined state",
-                    field: "name",
-                    align: "left",
-                    rules: ["uniqueTableRule", "onlyWords"],
-                    sortable: true,
-                    defaultValue: "newName",
-                    width: "20%",
-                  },
-                  {
-                    headerName: "Scene",
-                    itype: "$chips",
-                    tooltip: "sequence of commands, number=delay",
-                    field: "scene",
-                    align: "left",
-                    clickable: true,
-                    sortable: false,
-                    width: "75%",
-                    iselect: ($, props, Iob) => Object.keys(Iob.getStore.stateNames).sort(),
-                    convertOld: "stringToArrayComma",
-                    dropZone: ["adapterState", "chipsGroup"],
-                    dragZone: "chipsGroup",
-                    dropAction: (e, that, Iob) =>
-                      that.doChangeValue((that.state.value || []).concat(e.dropped.stateName), e),
-                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
-                  },
-                ],
-              },
-              {
-                label: "States setup",
-                itype: "$table",
-                field: "switches",
-                "dyisable-sort": true,
-                cols: 12,
-                items: [
-                  {
-                    headerName: "Name",
-                    itype: "$string",
-                    field: "name",
-                    align: "left",
-                    rules: ["uniqueTableRule", "onlyWords"],
-                    sortable: true,
-                    defaultValue: "newName",
-                    width: "auto",
-                  },
-                  {
-                    headerName: "On",
-                    itype: "$chips",
-                    field: "on",
-                    align: "left",
-                    clickable: true,
-                    sortable: false,
-                    width: "45%",
-                    iselect: ($, props, Iob) => Object.keys(Iob.getStore.stateNames).sort(),
-                    dropZone: ["adapterState", "chipsGroup"],
-                    dragZone: "chipsGroup",
-                    dropAction: (e, that, Iob) =>
-                      that.doChangeValue((that.state.value || []).concat(e.dropped.stateName), e),
-                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
-                    convertOld: "stringToArrayComma",
-                  },
-                  {
-                    headerName: "Off",
-                    itype: "$chips",
-                    field: "off",
-                    clickable: true,
-                    align: "center",
-                    sortable: false,
-                    width: "auto",
-                    iselect: ($, props, Iob) => Object.keys(Iob.getStore.stateNames).sort(),
-                    dropZone: ["adapterState", "chipsGroup"],
-                    dropAction: (e, that, Iob) =>
-                      that.doChangeValue((that.state.value || []).concat(e.dropped.stateName), e),
-                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
-                    convertOld: "stringToArrayComma",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Learn",
-        icon: "settings_remote",
-        tooltip: "learn and manage learned functions of RM devices",
         items: [
           {
             label: "Adapter Settings",
@@ -347,7 +88,8 @@ function config() {
             rules: [
               "{return typeof $ === 'string' && $.length>=8 || t('should be at least 8 letters long!')}",
               {
-                regexp: "/((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s]).{8,40})/",
+                regexp:
+                  "/((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s]).{8,40})/",
                 message:
                   "need to include one lower case, one upper case, one number and one special character at least 8 and maximal 40 characters long!",
               },
@@ -452,7 +194,10 @@ function config() {
               const test = that.testRules(e.dropped.stateName);
               //              console.log("dropAction", e, that, test);
               test == true
-                ? that.doChangeValue(that.state.value.concat(e.dropped.stateName).sort(), e)
+                ? that.doChangeValue(
+                    that.state.value.concat(e.dropped.stateName).sort(),
+                    e
+                  )
                 : Iob.logSnackbar(
                     "warning;dropped Value '{0}' invalid because of {1}",
                     e.dropped.stateName,
@@ -461,12 +206,15 @@ function config() {
             },
             isOverProps: { style: { backgroundColor: "#C6F6C6" } },
             canDropHere: (e, that, Iob) =>
-              that.testRules(e.value) === true && that.state.value.indexOf(e.value) < 0,
+              that.testRules(e.value) === true &&
+              that.state.value.indexOf(e.value) < 0,
             hint: "Enter field names which should be encrypted in config",
             vdivider: "start",
             field: "encryptedFields",
             iselect: ($, props, Iob) =>
-              Object.keys(props.inative).filter((i) => typeof props.inative[i] === "string"),
+              Object.keys(props.inative).filter(
+                (i) => typeof props.inative[i] === "string"
+              ),
             prependIcon: "enhanced_encryption",
             hideItem: "!this.props.inative.debug",
 
@@ -521,7 +269,8 @@ function config() {
             tooltip: "Start a complete device scan",
             field: "debug",
             onClick: "{Iob.sendTo(null,'device_scan','.');}",
-            disabled: "!Iob.getStore.adapterStatus.alive || !!Iob.getStateValue('._NewDeviceScan')",
+            disabled:
+              "!Iob.getStore.adapterStatus.alive || !!Iob.getStateValue('._NewDeviceScan')",
             onStateChange:
               "{if (e.message.id.endsWith('._NewDeviceScan')) {Iob.logSnackbar('info;'+ (!!e.message.state.val ? 'start device scan now' : 'finished device scan'));} }",
             icon: "perm_scan_wifi",
@@ -607,7 +356,10 @@ function config() {
                 field: "$undefined",
                 onClick: (e, props, Iob) => {
                   Iob.setStateValue(".RM:RMPROPLUS._Learn", true);
-                  Iob.logSnackbar("warning;set state {0}", ".RM:RMPROPLUS._Learn");
+                  Iob.logSnackbar(
+                    "warning;set state {0}",
+                    ".RM:RMPROPLUS._Learn"
+                  );
                 },
                 disabled: "!Iob.getStore.adapterStatus.alive",
                 cols: 3,
@@ -620,7 +372,9 @@ function config() {
                 onClick: (e, value, Iob) => {
                   //            Iob.sendTo("sql.0", "query", "SELECT * FROM datapoints").then((x) =>
                   Iob.sendTo("sql.0", "getEnabledDPs").then((x) =>
-                    Iob.logSnackbar(`;!sql result for 'getEnabledDPs'=${JSON.stringify(x)}`)
+                    Iob.logSnackbar(
+                      `;!sql result for 'getEnabledDPs'=${JSON.stringify(x)}`
+                    )
                   );
                 },
                 /*                
@@ -727,7 +481,8 @@ function config() {
                 rules: [
                   "{return typeof $ === 'string' && $.length>=8 || t('should be at least 8 letters long!')}",
                   {
-                    regexp: "/((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s]).{8,40})/",
+                    regexp:
+                      "/((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s]).{8,40})/",
                     message:
                       "need to include one lower case, one upper case, one number and one special character at least 8 and maximal 40 characters long!",
                   },
@@ -762,7 +517,8 @@ function config() {
                   "uniqueTableRule",
                   {
                     regexp: "/^[\\w\\$@/:-]+$/i",
-                    message: "Only letters, numbers and `$ @ / : _ -` are allowed",
+                    message:
+                      "Only letters, numbers and `$ @ / : _ -` are allowed",
                   },
                 ],
                 sortable: true,
@@ -792,7 +548,8 @@ function config() {
                 rules: [
                   {
                     regexp: "/^(([\\dA-F]{2}:){5}[\\dA-F]{2})?$/i",
-                    message: "Need to be a mac address (like 01:23:45:56:78:9a)",
+                    message:
+                      "Need to be a mac address (like 01:23:45:56:78:9a)",
                   },
                 ],
               },
@@ -804,7 +561,8 @@ function config() {
                 tooltip: "enable device poll",
                 sortable: false,
                 width: "3%",
-                convertOld: "(this.props.value || this.props.value===undefined)",
+                convertOld:
+                  "(this.props.value || this.props.value===undefined)",
                 color: "primary",
               },
               {
@@ -839,6 +597,263 @@ function config() {
                 disabled: true,
                 class: "text-caption",
                 style: { fontSize: "12px" },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: "Scenes",
+        icon: "playlist_add",
+        tooltip: "Create and manage scenes or special actions",
+        spacing: 1,
+        items: [
+          {
+            itype: "$stateBrowser",
+            pageSize: 25,
+            dragZone: "adapterState",
+            cols: 6,
+          },
+          {
+            itype: "$grid",
+            spacing: 1,
+            cols: 6,
+            items: [
+              {
+                label: "Scene setup",
+                itype: "$table",
+                field: "scenes",
+                "dyisable-sort": true,
+                cols: 12,
+                items: [
+                  {
+                    headerName: "Name",
+                    itype: "$string",
+                    tooltip: "name of combined state",
+                    field: "name",
+                    align: "left",
+                    rules: ["uniqueTableRule", "onlyWords"],
+                    sortable: true,
+                    defaultValue: "newName",
+                    width: "20%",
+                  },
+                  {
+                    headerName: "Scene",
+                    itype: "$chips",
+                    tooltip: "sequence of commands, number=delay",
+                    field: "scene",
+                    align: "left",
+                    clickable: true,
+                    sortable: false,
+                    width: "75%",
+                    iselect: ($, props, Iob) =>
+                      Object.keys(Iob.getStore.stateNames).sort(),
+                    convertOld: "stringToArrayComma",
+                    dropZone: ["adapterState", "chipsGroup"],
+                    dragZone: "chipsGroup",
+                    dropAction: (e, that, Iob) =>
+                      that.doChangeValue(
+                        (that.state.value || []).concat(e.dropped.stateName),
+                        e
+                      ),
+                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
+                  },
+                ],
+              },
+              {
+                label: "States setup",
+                itype: "$table",
+                field: "switches",
+                "dyisable-sort": true,
+                cols: 12,
+                items: [
+                  {
+                    headerName: "Name",
+                    itype: "$string",
+                    field: "name",
+                    align: "left",
+                    rules: ["uniqueTableRule", "onlyWords"],
+                    sortable: true,
+                    defaultValue: "newName",
+                    width: "auto",
+                  },
+                  {
+                    headerName: "On",
+                    itype: "$chips",
+                    field: "on",
+                    align: "left",
+                    clickable: true,
+                    sortable: false,
+                    width: "45%",
+                    iselect: ($, props, Iob) =>
+                      Object.keys(Iob.getStore.stateNames).sort(),
+                    dropZone: ["adapterState", "chipsGroup"],
+                    dragZone: "chipsGroup",
+                    dropAction: (e, that, Iob) =>
+                      that.doChangeValue(
+                        (that.state.value || []).concat(e.dropped.stateName),
+                        e
+                      ),
+                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
+                    convertOld: "stringToArrayComma",
+                  },
+                  {
+                    headerName: "Off",
+                    itype: "$chips",
+                    field: "off",
+                    clickable: true,
+                    align: "center",
+                    sortable: false,
+                    width: "auto",
+                    iselect: ($, props, Iob) =>
+                      Object.keys(Iob.getStore.stateNames).sort(),
+                    dropZone: ["adapterState", "chipsGroup"],
+                    dropAction: (e, that, Iob) =>
+                      that.doChangeValue(
+                        (that.state.value || []).concat(e.dropped.stateName),
+                        e
+                      ),
+                    isOverProps: { style: { backgroundColor: "#C6F6C6" } },
+                    convertOld: "stringToArrayComma",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: "Learn",
+        icon: "settings_remote",
+        tooltip: "learn and manage learned functions of RM devices",
+        items: [
+          {
+            label: "Port",
+            itype: "$number",
+            min: 1000,
+            max: 65000,
+            defaultValue: 3000,
+            placeholder: "Enter port address on to listen on, 3000=example",
+            hint: "Port to listen on >=1000 & <=65000",
+            field: "port",
+            fullWidth: true,
+            prependIcon: "exit_to_app",
+            cols: 3,
+            sm: 4,
+          },
+          {
+            label: "For Method field:",
+            itype: "$html",
+            text: [
+              "!<code>GET</code> | <code>POST</code> ",
+              "is supported.",
+              "!<br>",
+              "By entering the below URL in your browser (changing iobroker-server to your server name or ip) you can test the 'Test' entry:",
+              "!<br><a target='_blank' rel='noopener noreferrer' href='http://MyHost:MyPort/Test?what=ok&length_$m=12&temp_$%C2%B0F=13&speed_$mp/h=88'>http://MyHost:MyPort/Test?what=ok&length_$m=12&temp_$%C2%B0F=13&speed_$mp/h=88</a>",
+            ],
+            style: {
+              width: "98%",
+            },
+            changeItems: [
+              "{items.text = items.text.map(i => i.replace(/MyHost/g,Iob.getStore.serverName.host))}",
+              "{items.text = items.text.map(i => i.replace(/MyPort/g,Iob.getStore.inative.port))}",
+            ],
+            cols: 6,
+            sm: 8,
+          },
+          {
+            label: "For Path field:",
+            itype: "$html",
+            text: [
+              "The external device can connect to the adapter's server using following example:",
+              "!<br>`http://MyHost:MyPort/&nbsp;<code>path</code>&nbsp;?data=...`",
+            ],
+            changeItems:
+              "{items.text = items.text.map(i => i.replace(/MyPort/g,Iob.getStore.inative.port))}",
+            style: {
+              width: "98%",
+            },
+            cols: 3,
+            sm: 4,
+          },
+          {
+            label: "For Convert field:",
+            itype: "$html",
+            text: [
+              "Conversion receives data as variable $ and can convert it to some new format which will then be stored in state(s) named with path. ",
+              "!<br>",
+              "Example: ",
+              "!<code>{ tempC: FtoC($.tempf, 1) }</code>",
+              " where 'FtoC' is an internal conversion for Farenheit to Celsius. Other functions are",
+              "!<br><code>toNum(str, digits_after_comma), CtoF(..) and ItoMM(...)</code>",
+              "The field names can end with '_' and type/unit information. The text after the '_' will be the type like with '_date',",
+              "or if type should be number with specific unit you can name it '_$km/h'.",
+              "There are some predefined types available as well which can be named directly (without $):",
+              "!<br><code>'Hum', 'Kmh', 'Deg', 'Date', 'Hpa', 'Mm', 'Wm2', 'Txt', 'C', 'N'</code>",
+              "where N is just a number Value, the many of the other set also roles.",
+            ],
+            style: {
+              width: "98%",
+            },
+            cols: 9,
+            sm: 8,
+          },
+          {
+            label: "Path Table",
+            itype: "$table",
+            field: "pathtable",
+            "disable-sort": true,
+            cols: 12,
+            items: [
+              {
+                headerName: "Name",
+                itype: "$string",
+                field: "name",
+                align: "left",
+                rules: ["uniqueTableRule", "onlyWords"],
+                sortable: true,
+                defaultValue: "newPath",
+                width: "12%",
+              },
+              {
+                headerName: "Path",
+                itype: "$string",
+                field: "path",
+                align: "left",
+                rules: ["onlyWords"],
+                sortable: true,
+                defaultValue: "newPath",
+                width: "12%",
+              },
+              {
+                headerName: "Method",
+                itype: "$select",
+                tooltip: "please select methot for path (GET,PUT or POST)",
+                iselect: "|GET|PUT|POST",
+                field: "method",
+                align: "center",
+                defaultValue: "GET",
+                sortable: false,
+                width: "5%",
+              },
+              {
+                headerName: "Convert",
+                field: "convert",
+                itype: "$textarea",
+                align: "left",
+                defaultValue: "$",
+                placeholder:
+                  "Please enter the formula here, '$' is the simplest!",
+                sortable: true,
+                width: "55%",
+              },
+              {
+                headerName: "Enabled",
+                itype: "$checkbox",
+                field: "enabled",
+                sortable: false,
+                align: "center",
+                width: "5%",
               },
             ],
           },
@@ -887,5 +902,4 @@ function config() {
     },
   };
 }
-module.exports = config;
 config();

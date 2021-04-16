@@ -11,8 +11,8 @@ import Iob from "./components/Iob";
 import { ThemeProvider } from "@material-ui/core/styles";
 import { Loader } from "./components/UiComponents";
 import { DndProvider } from "react-dnd-multi-backend";
-import HTML5toTouch from "react-dnd-multi-backend/dist/esm/HTML5toTouch";
-
+//import HTML5toTouch from "react-dnd-multi-backend/dist/esm/HTML5toTouch";
+import { HTML5toTouch } from 'rdndmb-html5-to-touch'
 const translations = {
   en: require("./i18n/en.json"),
   de: require("./i18n/de.json"),

@@ -21,13 +21,8 @@ class ConfigList extends React.Component {
 
   render() {
     //    console.log(this.props.adapterLog);
-    const {
-      page,
-      inative,
-      index: ikey = "",
-      attr = "",
-      onUpdateValue,
-    } = this.props;
+//    console.log("Render CnfigList", this.props.astates);
+    const { page, inative, index: ikey = "", attr = "" } = this.props;
 
     return (
       <Container maxWidth={false} disableGutters style={{ overflow: "hidden" }}>
@@ -61,17 +56,10 @@ class ConfigList extends React.Component {
                   //          console.log("hideItem", key, hideItem, res);
                   if (res) return null;
                 } catch (e) {
-                  Iob.logSnackbar(
-                    error,
-                    t("error in hideItem for 0 1", key, e)
-                  );
+                  Iob.logSnackbar(error, t("error in hideItem for 0 1", key, e));
                 }
               else if (typeof hideItem === "boolean" && hideItem) return null;
-              else if (
-                typeof hideItem === "function" &&
-                hideItem(this.props, Iob)
-              )
-                return null;
+              else if (typeof hideItem === "function" && hideItem(this.props, Iob)) return null;
 
               let configItem;
               if (rest.itype == "$divider")
@@ -85,22 +73,18 @@ class ConfigList extends React.Component {
                   key={key + "C"}
                   item={items}
                   index={key}
+                  astates={this.props.astates}
                   inative={inative}
                   attr={(attr ? attr + "." : "") + (item.field || "$undefined")}
                   field={item.field}
                   value={inative[item.field]}
                   settings={this}
-                  onUpdateValue={onUpdateValue}
                   itype={items.itype}
                 />
               );
               return [
                 vdivider == "start" ? (
-                  <Divider
-                    key={key + "v"}
-                    orientation="vertical"
-                    flexItem
-                  ></Divider>
+                  <Divider key={key + "v"} orientation="vertical" flexItem></Divider>
                 ) : null,
                 noGrid ? (
                   configItem
@@ -110,11 +94,7 @@ class ConfigList extends React.Component {
                   </Grid>
                 ),
                 vdivider == "end" ? (
-                  <Divider
-                    key={key + "v"}
-                    orientation="vertical"
-                    flexItem
-                  ></Divider>
+                  <Divider key={key + "v"} orientation="vertical" flexItem></Divider>
                 ) : null,
               ];
             })}

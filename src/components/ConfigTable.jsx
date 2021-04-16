@@ -52,7 +52,8 @@ class ConfigTable extends React.Component {
   }
 
   render() {
-    const { columns = [], rows = [] } = this.props;
+    const { columns = [], rows = [], astates } = this.props;
+//    console.log("Render ConfigTable", astates);
     const {
       icon,
       label,
@@ -90,13 +91,13 @@ class ConfigTable extends React.Component {
             ></TButton>
           </Toolbar>
         </AppBar>
-        {!folded && this.renderTable(drest, columns, rows, key)}
+        {!folded && this.renderTable(drest, columns, rows, key, astates)}
       </div>
     );
     return sw;
   }
 
-  renderTable(item, columns, rows = []) {
+  renderTable(item, columns, rows = [], nkey, astates) {
     const { height, rowsPerPage = 6, ...prest } = item;
     const rest = { ...prest, rowsPerPage };
     const dstyle = { width: "100%" };
@@ -172,6 +173,7 @@ class ConfigTable extends React.Component {
                             c.field || "$undefined"
                           }`}
                           field={c.field}
+                          astates={astates}
                           inative={row}
                           settings={this.props.settings}
                           value={row[c.field]}
@@ -238,9 +240,9 @@ class ConfigTable extends React.Component {
 
   deleteRow = (index) => {
     const { page, pageSize } = this.state;
-    const { attr, rows = [], onUpdateValue } = this.props;
+    const { attr, rows = []} = this.props;
     const item = index + page * pageSize;
-    onUpdateValue(attr, rows.slice(0, item).concat(rows.slice(item + 1)));
+    Iob.updateInativeValue(attr, rows.slice(0, item).concat(rows.slice(item + 1)));
     const len = rows.length - 1;
     if (pageSize) {
       let npage = Math.floor(len / pageSize);
@@ -251,7 +253,7 @@ class ConfigTable extends React.Component {
 
   addRow = () => {
     const newItem = {};
-    const { attr, rows = [], columns, onUpdateValue } = this.props;
+    const { attr, rows = [], columns } = this.props;
     const { page, pageSize } = this.state;
     columns.map((i) => {
       const def = i.defaultValue;
@@ -283,7 +285,7 @@ class ConfigTable extends React.Component {
     });
     const nrows = rows.concat(newItem);
     const len = nrows.length;
-    onUpdateValue(attr, nrows);
+    Iob.updateInativeValue(attr, nrows);
     if (pageSize) {
       let npage = Math.floor(len / pageSize);
       if (len % pageSize == 0) npage--;

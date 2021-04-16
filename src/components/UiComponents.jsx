@@ -29,9 +29,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@material-ui/core";
-import Autocomplete, {
-  createFilterOptions,
-} from "@material-ui/lab/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@material-ui/lab/Autocomplete";
 import "./loader.css";
 import PropTypes from "prop-types";
 import { DragSource, useDrop, useDrag } from "react-dnd";
@@ -39,26 +37,20 @@ import Draggable from "react-draggable";
 import { NativeTypes } from "react-dnd-html5-backend";
 import { green, pink } from "@material-ui/core/colors";
 
-function useSingleAndDoubleClick(
-  actionSimpleClick,
-  actionDoubleClick,
-  delay = 250
-) {
+function useSingleAndDoubleClick(actionSimpleClick, actionDoubleClick, delay = 250) {
   const [click, setClick] = useState(0);
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       // simple click
-      if (click === 1 && typeof actionSimpleClick === "function")
-        actionSimpleClick(event);
+      if (click === 1 && typeof actionSimpleClick === "function") actionSimpleClick(event);
       setClick(0);
     }, delay);
 
     // the duration between this click and the previous one
     // is less than the value of delay = double-click
-    if (click === 2 && typeof actionDoubleClick === "function")
-      actionDoubleClick(event);
+    if (click === 2 && typeof actionDoubleClick === "function") actionDoubleClick(event);
 
     return () => clearTimeout(timer);
   }, [click]);
@@ -90,33 +82,16 @@ class Loader extends React.Component {
   render() {
     const theme = this.props.themeType || this.props.theme || "light";
     return (
-      <div
-        key={this.props.key}
-        className={"logo-back logo-background-" + theme}
-      >
-        <div
-          className="logo-div"
-          style={{ width: this.size, height: this.size }}
-        >
+      <div key={this.props.key} className={"logo-back logo-background-" + theme}>
+        <div className="logo-div" style={{ width: this.size, height: this.size }}>
+          <div className={"logo-top logo-background-" + theme} style={{ left: "37%" }} />
+          <div className={"logo-top logo-background-" + theme} style={{ left: "57%" }} />
           <div
-            className={"logo-top logo-background-" + theme}
-            style={{ left: "37%" }}
-          />
-          <div
-            className={"logo-top logo-background-" + theme}
-            style={{ left: "57%" }}
-          />
-          <div
-            className={
-              "logo-border logo-background-" + theme + " logo-animate-wait"
-            }
+            className={"logo-border logo-background-" + theme + " logo-animate-wait"}
             style={{ borderWidth: this.size * 0.132 }}
           />
           <div className={"logo-i logo-animate-color-inside-" + theme} />
-          <div
-            className={"logo-i-top logo-animate-color-inside-" + theme}
-            style={{ top: "18%" }}
-          />
+          <div className={"logo-i-top logo-animate-color-inside-" + theme} style={{ top: "18%" }} />
           <div
             className={"logo-i-top logo-animate-color-inside-" + theme}
             style={{ bottom: "18%" }}
@@ -232,8 +207,8 @@ function MakeDraggable(cprops) {
   const child = React.Children.only(children);
   //  console.log(cprops, rest);
   const [dragHandle, drag] = useDrag({
-    type: dragZone, 
-    item: { ...dragValue },
+    type: dragZone,
+    item: { type: dragZone, ...dragValue },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
       ...dragCollect,
@@ -244,8 +219,7 @@ function MakeDraggable(cprops) {
   let props = { ref: drag, ...rest };
   const { onClick, onDoubleClick } = child.props;
   //  console.log(onClick, onDoubleClick);
-  if (onDoubleClick)
-    props.onClick = useSingleAndDoubleClick(onClick, onDoubleClick);
+  if (onDoubleClick) props.onClick = useSingleAndDoubleClick(onClick, onDoubleClick);
   dragTest && dragTest({ dragZone, props, isDragging, dragHandle, dragValue });
   //    children.ref = drag;
   //    Object.assign(children.props,dragProps);
@@ -272,9 +246,7 @@ function AutocompleteSelect(props) {
   const { inputProps, getOptionLabel = getOlabel, onChange, ...rest } = props;
   let { renderInput = ri, options = { "": "" }, ...defaultProps } = rest;
   if (typeof options === "string") {
-    const opt = options
-      .split("|")
-      .map((i) => ({ label: i.trim(), value: i.trim() }));
+    const opt = options.split("|").map((i) => ({ label: i.trim(), value: i.trim() }));
     options = opt;
   }
   //  console.log(defaultProps, onChange);
@@ -399,25 +371,21 @@ class InputField extends React.Component {
       canRearrange,
       value,
     };
-    if (!dragZone && chips && canRearrange)
-      this.state.dragZone = "chips-drop-" + this.key;
+    if (!dragZone && chips && canRearrange) this.state.dragZone = "chips-drop-" + this.key;
     //    const nconf = ConfigSettings.transformConfig(props.configPage);
   }
 
   static getOptions(options) {
     if (Array.isArray(options)) return options;
     if (typeof options === "string") {
-      const osplit =
-        options.indexOf("|") >= 0 && options.indexOf(";") < 0 ? "|" : ";";
+      const osplit = options.indexOf("|") >= 0 && options.indexOf(";") < 0 ? "|" : ";";
       const isobj = options.indexOf("=") >= 0;
       if (isobj) {
-        return options.split(
-          osplit.map((i) => {
-            let [label, value] = i.split("=").map((j) => j.trim());
-            if (!value) value = label;
-            return { label, value };
-          })
-        );
+        return options.split(osplit).map((i) => {
+          let [label, value] = i.split("=").map((j) => j.trim());
+          if (!value) value = label;
+          return { label, value };
+        });
       } else return options.split(osplit).map((i) => i.trim());
     }
     return [];
@@ -538,18 +506,13 @@ class InputField extends React.Component {
           : "";
     const useOptions = Array.isArray(options) && options.length;
     const offsetWidth =
-      (this.myInput.current && this.myInput.current.offsetWidth) ||
-      window.innerWidth / 4;
+      (this.myInput.current && this.myInput.current.offsetWidth) || window.innerWidth / 4;
     //      console.log(offsetWidth);
     const listStyle = {
       display: "flex",
       flexFlow: "row wrap",
       marginRight: "6px",
-      minWidth: minWidth
-        ? minWidth
-        : offsetWidth
-        ? Math.floor(offsetWidth / 3).toString()
-        : "30vw",
+      minWidth: minWidth ? minWidth : offsetWidth ? Math.floor(offsetWidth / 3).toString() : "30vw",
       //      width: offsetWidth ? Math.floor(offsetWidth/1.4).toString() : "20vw",
       maxWidth: offsetWidth ? Math.floor(offsetWidth / 1.7).toString() : "50vw",
     };
@@ -607,14 +570,9 @@ class InputField extends React.Component {
               //                console.log(`'${dragZone}'`, props, isDragging, dragHandle, dragValue)
             }
             onDoubleClick={(e) =>
-              console.log("chipDoubleClick", option) ||
-              this.setState({ inputValue: option })
+              console.log("chipDoubleClick", option) || this.setState({ inputValue: option })
             }
-            onDelete={(e) =>
-              this.doChange(
-                value.slice(0, index).concat(value.slice(index + 1))
-              )
-            }
+            onDelete={(e) => this.doChange(value.slice(0, index).concat(value.slice(index + 1)))}
             onChange={(e) => this.doChange(e.target.value)}
             clickable={clickable}
             index={index}
@@ -659,7 +617,7 @@ class InputField extends React.Component {
             for (const opt of options)
               if (typeof opt === "string" && o == opt) return o;
               else if (opt.value == o) return opt.label;
-            console.log(`getOptionLabel '${o}'`, options);
+            //            console.log(`getOptionLabel '${o}'`, options);
             if (!o && options.length) {
               const fo = options[0];
               return typeof fo === "string" ? fo : fo.label;
@@ -708,9 +666,7 @@ class InputField extends React.Component {
                     //                    console.log("onChange TextField", e) ||
                     this.setState({ inputValue: e.target.value })
                   }
-                  onKeyUp={(e) =>
-                    e.key == "Escape" ? this.setState({ inputValue: "" }) : null
-                  }
+                  onKeyUp={(e) => (e.key == "Escape" ? this.setState({ inputValue: "" }) : null)}
                   //                    fullWidth={fullWidth}
                   error={nerror}
                   {...params.inputProps}
@@ -765,8 +721,7 @@ class InputField extends React.Component {
         onChange={(e) => {
           const en = e.nativeEvent;
           const value = e.target.value;
-          this.avoidDelete =
-            en.inputType === "deleteContentBackward" && value === "";
+          this.avoidDelete = en.inputType === "deleteContentBackward" && value === "";
           this.onChangeInputValue(value);
         }}
         {...more}
@@ -796,9 +751,7 @@ class InputField extends React.Component {
         error={nerror}
         style={{ marginTop: "4px" }}
       >
-        {!useOptions && label ? (
-          <InputLabel htmlFor={this.key}>{label}</InputLabel>
-        ) : null}
+        {!useOptions && label ? <InputLabel htmlFor={this.key}>{label}</InputLabel> : null}
         {iField}
         {helperText ? <FormHelperText>{helperText}</FormHelperText> : null}
       </FormControl>
@@ -807,29 +760,17 @@ class InputField extends React.Component {
 }
 
 function IButton(props) {
-  const {
-    tooltip,
-    size,
-    icon,
-    onClick,
-    src,
-    disabled,
-    ...passThroughProps
-  } = props;
+  const { tooltip, size, icon, onClick, src, disabled, ...passThroughProps } = props;
   function handleClick(e) {
     if (src) window.open(src, "_blank");
     if (onClick) onClick(e);
   }
-  const nstyle =
-    onClick || src ? { style: { cursor: "pointer" } } : { style: {} };
+  const nstyle = onClick || src ? { style: { cursor: "pointer" } } : { style: {} };
   if (disabled) nstyle.style.color = "grey";
 
   if (size) passThroughProps.fontSize = size;
   const sw = (
-    <Icon
-      {...Iob.mergeProps(passThroughProps, nstyle)}
-      onClick={(e) => handleClick(e)}
-    >
+    <Icon {...Iob.mergeProps(passThroughProps, nstyle)} onClick={(e) => handleClick(e)}>
       {icon}
     </Icon>
   );
@@ -913,7 +854,6 @@ class UButton extends React.Component {
       >
         <TButton
           {...passThroughProps}
-          tooltip={tooltip}
           style={isOver ? dropStyle : {}}
           label={isOver ? dropLabel : label}
           onClick={(e) => this.myRef.current.click(e)}
@@ -959,11 +899,7 @@ function FilterField(props) {
       endAdornment={
         !disableClearIcon &&
         myFilter && (
-          <Icon
-            fontSize="small"
-            onClick={(e) => changeFilter("")}
-            style={{ cursor: "pointer" }}
-          >
+          <Icon fontSize="small" onClick={(e) => changeFilter("")} style={{ cursor: "pointer" }}>
             close
           </Icon>
         )
@@ -982,14 +918,7 @@ function FilterField(props) {
 }
 
 function RButton(props) {
-  const {
-    checked,
-    onChange,
-    iconOn,
-    iconOff,
-    iconIndeterminate,
-    ...rest
-  } = props;
+  const { checked, onChange, iconOn, iconOff, iconIndeterminate, ...rest } = props;
   const [isChecked, setChecked] = useState(!!checked);
   return (
     <TButton
@@ -1030,36 +959,18 @@ function TButton(props) {
     ...passThroughProps,
   };
   //  if (addProps) console.log(label, addProps, nprops);
-  const iFontSize =
-    nprops.size == "small" || nprops.size == "large" ? nprops.size : "default";
+  const iFontSize = nprops.size == "small" || nprops.size == "large" ? nprops.size : "default";
   if (startIcon)
     nprops.startIcon =
-      typeof startIcon === "string" ? (
-        <Icon fontSize={iFontSize}>{startIcon}</Icon>
-      ) : (
-        startIcon
-      );
+      typeof startIcon === "string" ? <Icon fontSize={iFontSize}>{startIcon}</Icon> : startIcon;
   else if (icon && label && !narrow)
-    nprops.startIcon =
-      typeof icon === "string" ? (
-        <Icon fontSize={iFontSize}>{icon}</Icon>
-      ) : (
-        icon
-      );
+    nprops.startIcon = typeof icon === "string" ? <Icon fontSize={iFontSize}>{icon}</Icon> : icon;
   else if (endIcon)
     nprops.endIcon =
-      typeof endIcon === "string" ? (
-        <Icon fontSize={iFontSize}>{endIcon}</Icon>
-      ) : (
-        endIcon
-      );
+      typeof endIcon === "string" ? <Icon fontSize={iFontSize}>{endIcon}</Icon> : endIcon;
   let sw = (
     <Button {...nprops}>
-      {!narrow && label ? (
-        label
-      ) : icon ? (
-        <Icon fontSize={iFontSize}>{icon}</Icon>
-      ) : null}
+      {!narrow && label ? label : icon ? <Icon fontSize={iFontSize}>{icon}</Icon> : null}
     </Button>
   );
   //  if (addProps) sw = <span {...addProps}>{sw}</span>
@@ -1067,9 +978,10 @@ function TButton(props) {
 }
 
 function AddTooltip(tooltip, item, key) {
+  if (typeof tooltip === "string" && tooltip) tooltip = { title: tooltip };
   return (
     (tooltip && (
-      <Tooltip key={key} title={tooltip}>
+      <Tooltip key={key} {...tooltip}>
         {item}
       </Tooltip>
     )) ||
@@ -1078,9 +990,10 @@ function AddTooltip(tooltip, item, key) {
 }
 
 function AddTooltipChildren({ tooltip, children, ...props }) {
+  if (typeof tooltip === "string" && tooltip) tooltip = { title: tooltip };
   return (
     (tooltip && (
-      <Tooltip title={tooltip} {...props}>
+      <Tooltip {...tooltip} {...props}>
         {children}
       </Tooltip>
     )) ||
@@ -1142,13 +1055,7 @@ class HtmlComponent extends React.Component {
 class IDialog extends React.Component {
   constructor(props) {
     super(props);
-    const {
-      type = "default",
-      options = {},
-      children,
-      justUpdate,
-      ...rprops
-    } = props;
+    const { type = "default", options = {}, children, justUpdate, ...rprops } = props;
     this.state = {
       type,
       options: Object.assign(
@@ -1172,8 +1079,7 @@ class IDialog extends React.Component {
       const nstate = { open: !!setToShow };
       if (typeof setToShow === "object" && setToShow !== null) {
         nstate.show = setToShow;
-        this.callback =
-          typeof setToShow.callback === "function" ? setToShow.callback : null;
+        this.callback = typeof setToShow.callback === "function" ? setToShow.callback : null;
         if (setToShow.inputValue && setToShow.inputValue != this.state.vale)
           nstate.value = setToShow.inputValue;
       }
@@ -1231,10 +1137,7 @@ class IDialog extends React.Component {
     //    console.log(type, open, show, options);
     function DragPaper(props) {
       return (
-        <Draggable
-          handle={"#" + handle}
-          cancel={'[class*="MuiDialogContent-root"]'}
-        >
+        <Draggable handle={"#" + handle} cancel={'[class*="MuiDialogContent-root"]'}>
           <Paper {...props} />
         </Draggable>
       );
@@ -1265,9 +1168,7 @@ class IDialog extends React.Component {
               {...inputProps}
               autoFocus
               value={value}
-              onKeyUp={(e) =>
-                e.key == "Enter" && okOnEnter ? this.handleClose(true, e) : null
-              }
+              onKeyUp={(e) => (e.key == "Enter" && okOnEnter ? this.handleClose(true, e) : null)}
               onChange={(e) => this.setState({ value: e.target.value })}
             />
           )}
@@ -1297,6 +1198,45 @@ class IDialog extends React.Component {
   }
 }
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null, errorInfo: null };
+  }
+  
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { error: true, errorInfo: error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // Catch errors in any components below and re-render with error message
+    this.setState({
+      error: error,
+      errorInfo: errorInfo
+    })
+    // You can also log error messages to an error reporting service here
+  }
+  
+  render() {
+    if (this.state.errorInfo) {
+      // Error path
+      return (
+        <div>
+          <h2>Something went wrong in {this.props.name}.</h2>
+          <details style={{ whiteSpace: 'pre-wrap' }}>
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo.componentStack}
+          </details>
+        </div>
+      );
+    }
+    // Normally, just render children
+    return this.props.children;
+  }  
+}
+
 export {
   InputField,
   _exportLoader as Loader,
@@ -1304,6 +1244,7 @@ export {
   MyChip,
   IDialog,
   UButton,
+  ErrorBoundary,
   TButton,
   IButton,
   AddTooltip,
