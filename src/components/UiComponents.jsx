@@ -611,8 +611,8 @@ class InputField extends React.Component {
           multiple={multiple}
           noOptionsText={noOptionsText}
           getOptionLabel={(o) => {
+            // console.log(`getOptionLabel`,o, typeof o, options);
             if (getOptionLabel) return getOptionLabel(o, options);
-            //            console.log(`getOptionLabel '${o}'`, options);
             if (typeof o === "object" && o.label !== undefined) return o.label;
             for (const opt of options)
               if (typeof opt === "string" && o == opt) return o;
@@ -622,13 +622,15 @@ class InputField extends React.Component {
               const fo = options[0];
               return typeof fo === "string" ? fo : fo.label;
             }
-            return "..unknown";
+            return o;
           }}
-          getOptionSelected={(o, t) => {
-            if (getOptionSelected) return getOptionSelected(o, t, options);
-            //            console.log("getOptionSelected", o, t, options);
-            return typeof o === "string" ? o === t : o.value === t;
-          }}
+          getOptionSelected={(o, t) =>
+            getOptionSelected
+              ? getOptionSelected(o, t, options)
+              : typeof o === "string"
+              ? o === t
+              : o.value === t
+          }
           onChange={(e, v, reason) => {
             //            console.log("acomplete onchANGE", id, e, e.target.value, v, reason);
             this.doChange(v, e, reason);
@@ -1203,7 +1205,7 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { error: null, errorInfo: null };
   }
-  
+
   static getDerivedStateFromError(error) {
     // Update state so the next render will show the fallback UI.
     return { error: true, errorInfo: error };
@@ -1213,18 +1215,18 @@ class ErrorBoundary extends React.Component {
     // Catch errors in any components below and re-render with error message
     this.setState({
       error: error,
-      errorInfo: errorInfo
-    })
+      errorInfo: errorInfo,
+    });
     // You can also log error messages to an error reporting service here
   }
-  
+
   render() {
     if (this.state.errorInfo) {
       // Error path
       return (
         <div>
           <h2>Something went wrong in {this.props.name}.</h2>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
+          <details style={{ whiteSpace: "pre-wrap" }}>
             {this.state.error && this.state.error.toString()}
             <br />
             {this.state.errorInfo.componentStack}
@@ -1234,7 +1236,7 @@ class ErrorBoundary extends React.Component {
     }
     // Normally, just render children
     return this.props.children;
-  }  
+  }
 }
 
 export {

@@ -147,12 +147,12 @@ const ioBroker = createSlice({
         }
       state.stateNames = stateNames;
       const sai = "system.adapter." + adapterInstance;
-      let alive = state.adapterStates[sai + ".alive"];
+      let alive = states[sai + ".alive"];
       alive = alive && alive.val;
-      let connected = state.adapterStates[sai + ".connected"];
+      let connected = states[sai + ".connected"];
       connected = connected && connected.val;
       let connection =
-        state.adapterStates[state.iobrokerAdapterInstance + ".info.connection"];
+        states[state.iobrokerAdapterInstance + ".info.connection"];
       connection = !connection || connection.val;
       const status = alive ? (connection ? 2 : 0) : 0;
       const r = {
@@ -161,6 +161,7 @@ const ioBroker = createSlice({
         connection,
         status,
       };
+//      console.log("states", r);
       if (JSON.stringify(r) != JSON.stringify(state.adapterStatus))
         state.adapterStatus = r;
     },

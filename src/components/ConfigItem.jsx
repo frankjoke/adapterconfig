@@ -334,7 +334,7 @@ class ConfigItem extends React.Component {
 
   doChangeValue(value, e) {
     if (this.check(value)) value = this.change(value);
-//    console.log(value, this.props.attr, `'${this.errorString}'`, e);
+    //    console.log(value, this.props.attr, `'${this.errorString}'`, e);
     this.setState({ value });
     //    debugger;
     if (typeof this.state.item.onClick === "function") this.state.item.onClick(e, value, Iob);
@@ -388,15 +388,17 @@ class ConfigItem extends React.Component {
       label,
       rowsMax = 10,
       rowsMin = 2,
+      cols = 50,
       hint,
       width,
+      required,
       defaultValue,
       ...rest
     } = item;
     const { value, errorString } = this.state;
     const key = this.getKey();
     const sw = (
-      <FormControl required error={!!this.errorString} /* className={classes.formControl} */>
+      <FormControl required={required} error={!!this.errorString} /* className={classes.formControl} */>
         {label && (
           <InputLabel shrink required={required} htmlFor={key}>
             {label}
@@ -406,7 +408,8 @@ class ConfigItem extends React.Component {
           id={key}
           rowsMax={rowsMax}
           rowsMin={rowsMin}
-          width="100%"
+          required={required}
+          cols={cols}
           value={typeof value === "string" ? value : (value && value.toString()) || ""}
           onChange={(e) => this.doChangeValue(e.target.value, e)}
           {...rest}
@@ -483,6 +486,51 @@ class ConfigItem extends React.Component {
     return AddTooltip(tooltip, AddIcon(prependIcon, sw));
   }
 
+  $br(item) {
+    return <br />;
+  }
+
+  $ilist(item) {
+    const { items, linebreaks } = item;
+    const key = this.getKey();
+    const res = [];
+    items.map((i, index) => {
+      const {hideItem, ...nitem} = i;
+      let hi = false;
+      if (typeof hideItem === "string")
+        try {
+          const fun = Iob.makeFunction(hideItem, this, "props,Iob");
+          i.hideItem = fun;
+          const res = fun(this.props, Iob);
+          //          console.log("hideItem", key, hideItem, res);
+          if (res) hi = true;
+        } catch (e) {
+          Iob.logSnackbar(error, t("error in hideItem for 0 1", key, e));
+        }
+      else if (typeof hideItem === "boolean" && hideItem) hi = true;
+      else if (typeof hideItem === "function" && hideItem(this.props, Iob)) hi = true;
+
+      if (!hi) {
+        res.push(
+          <ConfigItem
+            key={key + "l" + index}
+            item={nitem}
+            index={key + "l" + index}
+            astates={this.props.astates}
+            inative={this.props.inative}
+            attr={this.props.attr}
+            field={i.field}
+            value={this.props.inative[i.field]}
+            settings={this.props.settings}
+            itype={i.itype}
+          />
+        );
+        if (linebreaks) res.push(<br key={key + "b" + index} />);
+      }
+    });
+    return <div key={key}>{res}</div>;
+  }
+
   $select(item) {
     const {
       label,
@@ -499,14 +547,14 @@ class ConfigItem extends React.Component {
       ...items
     } = item;
     const key = this.getKey();
-    let { iselect = [{ value: "", label: "...loading" }] } = this.state;
+    let { iselect = [] } = this.state;
     iselect = this.getSelect(iselect);
     // const oselect = {};
     // iselect.map((i) => (oselect[i.value] = i.label));
     const value = this.state.value || "";
     const helper = this.error ? this.errorString : hint ? hint : "";
     //    console.log("select:", `'${value}'`, key, iselect, items);
-
+    if (value && iselect == []) iselect = [{ label: value, value }];
     const sw = (
       <InputField
         {...{ required, size, margin, disabled, fullWidth }}
@@ -614,29 +662,15 @@ class ConfigItem extends React.Component {
   }
 
   $object(item) {
-    const { value, settings, attr} = this.props;
+    const { value, settings, attr } = this.props;
     return (
-      <ConfigList
-        index={this.getKey()}
-        page={item}
-        inative={value || {}}
-        attr={attr}
-        {...item}
-      />
+      <ConfigList index={this.getKey()} page={item} inative={value || {}} attr={attr} {...item} />
     );
   }
 
   $grid(item) {
     const { inative, settings, attr } = this.props;
-    return (
-      <ConfigList
-        index={this.getKey()}
-        page={item}
-        inative={inative}
-        attr={attr}
-        {...item}
-      />
-    );
+    return <ConfigList index={this.getKey()} page={item} inative={inative} attr={attr} {...item} />;
   }
 
   $icon(item) {
@@ -699,12 +733,7 @@ class ConfigItem extends React.Component {
   $stateBrowser(item) {
     const { inative, settings, attr } = this.props;
     return (
-      <StateBrowser
-        item={this.state.item}
-        index={this.getKey()}
-        inative={inative}
-        attr={attr}
-      />
+      <StateBrowser item={this.state.item} index={this.getKey()} inative={inative} attr={attr} />
     );
   }
 
@@ -771,10 +800,12 @@ class ConfigItem extends React.Component {
         }
 
     let sw =
-/*       isPartOf(
+      /*       isPartOf(
         itype,
         "$rbutton|$objectBrowser|$grid|$stateBrowser|$object|$state|$text|$html|$number|$string|$password|$switch|$button|$checkbox|$select|$chips|$table|$textarea|$icon|$log"
-      ) && */ typeof this[itype] === "function" ? (
+      ) && */ typeof this[
+        itype
+      ] === "function" ? (
         this[itype](nitem)
       ) : (
         <span>{this.props.index + ":" + JSON.stringify(nitem, null, 2)}</span>

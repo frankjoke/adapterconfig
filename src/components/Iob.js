@@ -999,20 +999,18 @@ class Iob {
           Iob.storeHandler("updateAdapterObjects", obj, 50);
         });
 
-        socket.subscribeObject("system.adapter." + adapterInstance + "*.", (id, newObj, oldObj) => {
+        socket.subscribeObject("system.adapter." + adapterInstance + ".*", (id, newObj, oldObj) => {
           const obj = { id, newObj, oldObj };
           Iob.emitEvent("objectChange", obj);
           if (obj.id == instanceId) Iob.setInstanceConfig(obj.newObj);
           Iob.storeHandler("updateAdapterObjects", obj, 50);
         });
 
-        /*
-         socket.subscribeState("system.adapter.*", (id, state) => {
+         socket.subscribeState("system.adapter." + adapterInstance + ".*", (id, state) => {
           const obj = { id, state };
-          Iob.storeHandler("updateAdapterStates", obj, 30);
+          Iob.storeHandler("updateAdapterStates", obj, 50);
           Iob.emitEvent("stateChange", obj);
         });
- */
       });
   }
 
@@ -1147,6 +1145,7 @@ class Iob {
 
   static logSnackbar(type, text, ...args) {
     let variant = undefined;
+//    console.log("logSnackbar %s, %s, %o", type, text, args);
     if (["error", "warning", "info", "success"].indexOf(type.trim().toLowerCase()) >= 0) {
       variant = type;
     } else {
@@ -1158,7 +1157,7 @@ class Iob {
       }
     }
     const key = new Date().getTime() + Math.random();
-    //    const message = Iob.t(text, ...args);
+    text = Iob.t(text, ...args);
     const options = { variant, key };
     if (variant == "error") {
       options.persist = true;

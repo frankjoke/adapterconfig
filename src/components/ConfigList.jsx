@@ -21,9 +21,8 @@ class ConfigList extends React.Component {
 
   render() {
     //    console.log(this.props.adapterLog);
-//    console.log("Render CnfigList", this.props.astates);
+    //    console.log("Render CnfigList", this.props.astates);
     const { page, inative, index: ikey = "", attr = "" } = this.props;
-
     return (
       <Container maxWidth={false} disableGutters style={{ overflow: "hidden" }}>
         <Paper elevation={2} style={{ padding: "4px 4px", margin: "3px 3px" }}>
