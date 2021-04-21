@@ -17,8 +17,10 @@
         }
       });
 
+      console.log(olocation);
+
       const dlocation = {
-        hostname: "localhost",
+        hostname: olocation.hostname || "localhost",
         port: "8081",
         protocol: "http:",
         adapterName: "acceptdata",
