@@ -85,7 +85,6 @@ class ConfigItem extends React.Component {
   }
   getSelect(sel) {
     if (sel && !Array.isArray(sel)) {
-      //      console.log("select=", sel, this.props.settings.props.ipAddresses);
       if (typeof sel === "string") {
         if (sel.startsWith("{")) {
           let fun = undefined,
@@ -491,11 +490,11 @@ class ConfigItem extends React.Component {
   }
 
   $ilist(item) {
-    const { items, linebreaks } = item;
+    const { items } = item;
     const key = this.getKey();
     const res = [];
     items.map((i, index) => {
-      const {hideItem, ...nitem} = i;
+      const {hideItem, lineBreak, spaces, ...nitem} = i;
       let hi = false;
       if (typeof hideItem === "string")
         try {
@@ -511,6 +510,8 @@ class ConfigItem extends React.Component {
       else if (typeof hideItem === "function" && hideItem(this.props, Iob)) hi = true;
 
       if (!hi) {
+        if (lineBreak) res.push(<br key={key + "b" + index} />);
+        if (spaces && spaces>0) res.push(Iob.nbsp(spaces));
         res.push(
           <ConfigItem
             key={key + "l" + index}
@@ -518,14 +519,12 @@ class ConfigItem extends React.Component {
             index={key + "l" + index}
             astates={this.props.astates}
             inative={this.props.inative}
-            attr={this.props.attr}
+            attr={this.props.attr.split('.').slice(0,-1).concat(i.field).join(".")}
             field={i.field}
             value={this.props.inative[i.field]}
-            settings={this.props.settings}
             itype={i.itype}
           />
         );
-        if (linebreaks) res.push(<br key={key + "b" + index} />);
       }
     });
     return <div key={key}>{res}</div>;
@@ -539,6 +538,7 @@ class ConfigItem extends React.Component {
       hint,
       defaultValue,
       tooltip,
+      width,
       disabled,
       margin = "none",
       fullWidth = true,
@@ -567,6 +567,7 @@ class ConfigItem extends React.Component {
         id={key}
         key={key}
         size={size}
+        width={width}
         color={color}
         disabled={disabled}
         defaultValue={defaultValue}
@@ -645,13 +646,12 @@ class ConfigItem extends React.Component {
   }
 
   $table(item) {
-    const { value, settings, attr } = this.props;
+    const { value, attr } = this.props;
     return (
       <ConfigTable
         index={this.getKey()}
         item={item}
         inative={value}
-        settings={settings}
         astates={this.state.astates}
         attr={attr}
         rows={value}
@@ -662,14 +662,14 @@ class ConfigItem extends React.Component {
   }
 
   $object(item) {
-    const { value, settings, attr } = this.props;
+    const { value, attr } = this.props;
     return (
       <ConfigList index={this.getKey()} page={item} inative={value || {}} attr={attr} {...item} />
     );
   }
 
   $grid(item) {
-    const { inative, settings, attr } = this.props;
+    const { inative, attr } = this.props;
     return <ConfigList index={this.getKey()} page={item} inative={inative} attr={attr} {...item} />;
   }
 
@@ -731,7 +731,7 @@ class ConfigItem extends React.Component {
   }
 
   $stateBrowser(item) {
-    const { inative, settings, attr } = this.props;
+    const { inative, attr } = this.props;
     return (
       <StateBrowser item={this.state.item} index={this.getKey()} inative={inative} attr={attr} />
     );

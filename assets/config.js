@@ -120,52 +120,64 @@ function config() {
                 width: "10%",
               },
               {
-                headerName: "Method / Source / Path",
+                headerName: "Method / Source / Path / InputConversion",
                 itype: "$ilist",
-                linebreaks: true,
                 sortable: false,
                 width: "12%",
                 align: "left",
                 sortable: false,
                 items: [
                   {
-                    //                  headerName: "Method",
                     itype: "$select",
-                    tooltip: "please select methot for path (GET,PUT or POST)",
-                    //                iselect: "|GET|PUT|POST",
+                    tooltip: "please select method",
                     iselect: ($, props, Iob) => {
                       const sel = Iob.getState(".info.plugins.$methods");
                       let res = (sel && sel.val) || [];
                       return res;
-                      //                  return sel && sel.val || "GET=GET";
                     },
                     field: "method",
-                    //                  align: "left",
                     defaultValue: "none",
-                    //                  sortable: false,
-                    //                  width: "7%",
+                    fullWidth: false,
+                    width: "150px",
                   },
                   {
-                    //                  headerName: "Source / Path",
+                    itype: "$select",
+                    tooltip: "please select method",
+                    iselect: ($, props, Iob) => {
+                      const sel = Iob.getState(".info.plugins.$inputtypes");
+                      let res = (sel && sel.val) || [];
+                      console.log(sel, res);
+                      return res;
+                    },
+                    hideItem: (props, Iob) => {
+                      const sel = Iob.getState(".info.plugins.$methods");
+                      let res = (sel && sel.val) || [];
+                      const method = props.inative["method"];
+                      const f = res.find((i) => i.value == method);
+                                        console.log(res, method, f);
+                      return !f || (f && !f.iconv);
+                    },
+                    field: "iconv",
+                    defaultValue: "",
+                    fullWidth: false,
+                    width: "100px",
+                    spaces: 2
+                  },
+                  {
                     itype: "$textarea",
                     cols: 40,
                     placeholder: "read source path or options",
                     field: "path",
-                    //                  align: "left",
                     rowsMin: "1",
-                    //                rules: ["onlyWords"],
-                    //                sortable: true,
-                    //                defaultValue: "newPath",
-                    //                  width: "200px",
+                    lineBreak:true,
                   },
                   {
-                    //                  headerName: "Write command",
                     itype: "$textarea",
-                    placeholder: "write command",
+                    placeholder: "enter here write command",
                     field: "write",
                     cols: 40,
-                    //                  align: "left",
                     rowsMin: "1",
+                    lineBreak:true,
                     hideItem: (props, Iob) => {
                       const sel = Iob.getState(".info.plugins.$methods");
                       let res = (sel && sel.val) || [];
@@ -174,10 +186,6 @@ function config() {
                       //                  console.log(res, method);
                       return !f || (f && !f.write);
                     },
-                    //                rules: ["onlyWords"],
-                    //                sortable: true,
-                    //                defaultValue: "newPath",
-                    //                  width: "100%",
                   },
                 ],
               },
@@ -192,7 +200,7 @@ function config() {
                   const method = props.inative["method"];
                   const f = res.find((i) => i.value == method);
                   //                  console.log(res, method);
-                  return !f || (f && !f.schedule);
+                  return !f || (f && !f.hasSchedule);
                 },
                 //                rowsMin: "1",
                 //                rules: ["onlyWords"],
@@ -203,7 +211,6 @@ function config() {
               {
                 headerName: "Converter",
                 itype: "$ilist",
-                linebreaks: true,
                 sortable: false,
                 width: "10%",
                 align: "left",
@@ -216,14 +223,17 @@ function config() {
                       const sel = Iob.getState(".info.plugins.$converters");
                       let res = (sel && sel.val) || [];
                       return res;
-                      //                  return sel && sel.val || "GET=GET";
                     },
                     field: "converter",
+                    fullWidth: false,
+                    lineBreak:true,
                     defaultValue: "none",
+                    width: "200px"
                   },
                   {
                     field: "convert",
                     itype: "$textarea",
+                    cols: 40,
                     rowsMin: "1",
                     defaultValue: "$",
                     placeholder: "Please enter the converter formula or options, '$' is the simplest!",
@@ -232,10 +242,9 @@ function config() {
                       let res = (sel && sel.val) || [];
                       const method = props.inative["converter"] || "none";
                       const f = res.find((i) => i.value == method);
-                      //                  console.log(res, method);
-                      return (f && !f.formula) || true;
+//                      console.log(res, method, f);
+                      return !f || (f && !f.options);
                     },
-                    //                sortable: true,
                   },
                 ],
               },
@@ -462,12 +471,12 @@ function config() {
           },
           {
             itype: "$ilist",
-            linebreaks: true,
             items: [
               {
                 itype: "$icon",
                 icon: "translate",
                 size: "small",
+                spaces: 20,
               },
               {
                 itype: "$icon",

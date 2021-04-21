@@ -77,7 +77,6 @@ class ConfigList extends React.Component {
                   attr={(attr ? attr + "." : "") + (item.field || "$undefined")}
                   field={item.field}
                   value={inative[item.field]}
-                  settings={this}
                   itype={items.itype}
                 />
               );

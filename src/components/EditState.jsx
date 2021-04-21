@@ -153,6 +153,7 @@ class EditState extends React.PureComponent {
         break;
       case "object":
       case "array":
+      default:
         sr = (<span style={{fontSize: "0.75em"}}>{Iob.stringify(val, 2, " ")}</span>);
         /*         (
           <HtmlComponent component="pre" html={Iob.syntaxHighlight(Iob.stringify(val, 2, " "))} />
@@ -215,8 +216,6 @@ class EditState extends React.PureComponent {
             />
           );
         //            }
-        break;
-      default:
         break;
     }
     //    console.log("Color:", color);

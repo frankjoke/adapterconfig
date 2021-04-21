@@ -176,7 +176,6 @@ class ConfigTable extends React.Component {
                           astates={astates}
                           inative={row}
                           value={row[c.field]}
-                          settings={this.props.settings}
                           itype={c.itype}
                         />
                         {/* "" + row[c.field] */}
