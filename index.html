@@ -17,15 +17,15 @@
         }
       });
 
-      console.log(olocation);
-
       const dlocation = {
         hostname: olocation.hostname || "localhost",
-        port: "8081",
-        protocol: "http:",
+        port: olocation.port || "8081",
+        protocol: olocation.protocol || "http:",
         adapterName: "acceptdata",
         instance: "0",
       };
+
+
       //      console.log(olocation);
       if (olocation.search && olocation.search.startsWith("?"))
         olocation.search
@@ -65,6 +65,7 @@
       window.registerSocketOnLoad = function (o) {
         window.socketLoadedHandler = o;
       };
+      console.log(olocation, dlocation, window.myLocation);
 
       const script = document.createElement("script");
       script.type = "text/javascript";

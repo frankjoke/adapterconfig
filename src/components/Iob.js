@@ -667,9 +667,10 @@ class Iob {
   static onlyWords(val) {
     if (Array.isArray(val)) val = val[0];
     //      debugger;
+    const res = val.match(/([^\u00C0-\u017Fa-zA-Z0-9_\-\@\$\/])/);
     return (
-      !!val.match(/^[\u00C0-\u017Fa-zA-Z0-9_\-\@\$\/]+$/) ||
-      t("Only letters, numbers and `_ - @ $ /` are allowed!")
+      !res ||
+      t("Only letters, numbers and `_ - @ $ /` are allowed but also got `{0}`!", res[1])
     );
   }
 
