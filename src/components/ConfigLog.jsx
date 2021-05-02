@@ -238,7 +238,7 @@ class ConfigLog extends React.Component {
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[0, 10, 25, 100]}
+          rowsPerPageOptions={[0, 5, 10, 25, 100]}
           component="div"
           count={rows.length}
           rowsPerPage={pageSize}
