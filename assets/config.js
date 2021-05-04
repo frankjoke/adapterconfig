@@ -120,7 +120,6 @@ function config() {
             label: "Path Table",
             itype: "$table",
             field: "pathtable",
-            "disable-sort": true,
             cols: 12,
             items: [
               {
@@ -350,7 +349,6 @@ function config() {
                 label: "Scene setup",
                 itype: "$table",
                 field: "scenes",
-                "dyisable-sort": true,
                 cols: 12,
                 items: [
                   {
@@ -387,7 +385,6 @@ function config() {
                 label: "States setup",
                 itype: "$table",
                 field: "switches",
-                "dyisable-sort": true,
                 cols: 12,
                 items: [
                   {
